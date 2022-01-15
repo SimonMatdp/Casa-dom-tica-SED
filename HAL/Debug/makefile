@@ -61,8 +61,8 @@ all: main-build
 main-build: HALL.elf secondary-outputs
 
 # Tool invocations
-HALL.elf: $(OBJS) $(USER_OBJS) D:\UPM\4\ -\ Cuarto\SED\trabajos\Micros\HAL\STM32F407VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "HALL.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\UPM\4 - Cuarto\SED\trabajos\Micros\HAL\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="HALL.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+HALL.elf: $(OBJS) $(USER_OBJS) D:\UPM\4\ -\ Cuarto\SED\trabajos\Micros\Casa-dom-tica-SED\HAL\STM32F407VGTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "HALL.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\UPM\4 - Cuarto\SED\trabajos\Micros\Casa-dom-tica-SED\HAL\STM32F407VGTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="HALL.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

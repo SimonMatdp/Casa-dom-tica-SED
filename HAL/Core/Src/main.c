@@ -54,11 +54,11 @@ static void MX_GPIO_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int flag_ventana_forzada=1;
+volatile int flag_ventana_forzada=0;
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	 {
 		if(GPIO_Pin==GPIO_PIN_1){
-			flag_ventana_forzada=0;
+			flag_ventana_forzada=1;
 			  }
 	}
 /* USER CODE END 0 */
@@ -103,7 +103,10 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	//int flag_ventana_forzada=HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_1);
-	HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, flag_ventana_forzada);
+	  if(flag_ventana_forzada){
+		  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, 1);
+	  }
+
 
   }
   /* USER CODE END 3 */
@@ -171,7 +174,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : PA1 */
   GPIO_InitStruct.Pin = GPIO_PIN_1;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
