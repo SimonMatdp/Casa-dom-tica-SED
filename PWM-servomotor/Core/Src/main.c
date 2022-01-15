@@ -96,15 +96,17 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  //Límites entre 60 y 220; no 100 y 200 omg datasheet
-	  for(i=70; i<210; i++){
-		  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1,i);
-		  HAL_Delay(10);
-	  }
+	  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1,210);
+	  //Límites entre 70 y 210; no 100 y 200 omg datasheet
 	  HAL_Delay(500);
-	 for(i=210; i>70; i--){
+	 for(i=210; i>140; i--){
 	  		  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1,i);
 	  		HAL_Delay(10);
+	  	  }
+	  HAL_Delay(500);
+	  for(i=140; i<210; i++){
+	  		  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1,i);
+	  		  HAL_Delay(10);
 	  	  }
 	  HAL_Delay(500);
 	  //__HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1,140);
