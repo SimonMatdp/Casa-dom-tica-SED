@@ -66,10 +66,22 @@ uint16_t valor_LDR=0; //Señal del LDR.
 //-----------------------------Interrupciones-----------------------------
 volatile uint8_t intrusion=0; //Flag intrusión en la sala
 volatile uint8_t alarma_on=0;
+
+//-----------------------------Debounce botón alarma-----------------------------
+volatile long t_ultimo_debounce=0; //IMPRESCINDIBLE INICIALIZAR
+int threshold=50;// deben pasar 50ms entre señales para considerarlo pulsado de nuevo
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if(GPIO_Pin==GPIO_PIN_2){
 		if(alarma_on==1){
 			intrusion=1;
+		}
+	}
+	if(GPIO_Pin==GPIO_PIN_0){
+		if((HAL_GetTick()-t_ultimo_debounce)>threshold){ //Si han pasado al menos <Threshold> ms desde el último "HIGH"
+			if(alarma_on==0) alarma_on=1;
+			else alarma_on=0;
+			t_ultimo_debounce=HAL_GetTick();
 		}
 	}
 }
@@ -123,7 +135,6 @@ int main(void)
   //-----------------------------Flags-----------------------------
     uint8_t toldo_subido=1; 	//flag estado del toldo
     uint8_t flag_presencia=0; //flag presencia en la sala
-    uint8_t boton_pulsado=0; // flag botón de la alarma pulsado
 
   //-----------------------------Setup-----------------------------
   //Calibración del sensor PIR. enciendo y apago un LED de la placa para indicarlo
@@ -139,31 +150,12 @@ int main(void)
   180º 	- 	210	-	(2.1ms)
   */
   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_4,210); // Toldo a posición inicial
-
-  //-----------------------------Debounce botón alarma-----------------------------
-  volatile long t_ultimo_debounce=0; //IMPRESCINDIBLE INICIALIZAR
-  int threshold=20;// deben pasar 20ms entre señales para considerarlo pulsado de nuevo
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  //Activar/desactivar alarma
-	  //Debounce del botón de la alarma
-	  if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0)==1){
-		  if((HAL_GetTick()-t_ultimo_debounce)>threshold){ //Si han pasado al menos <Threshold> ms desde el último "HIGH"
-			  boton_pulsado=1; //Es un "HIGH" real, no un rebote
-			  t_ultimo_debounce=HAL_GetTick();
-		  }
-	  }
-	  //Cambio de estado de la alarma
-	  if(boton_pulsado==1){
-		  //Toggle del estado de la alarma
-		  if(alarma_on==0) alarma_on=1;
-		  else alarma_on=0;
-		  boton_pulsado=0;
-	  }
 	  //Indicador de la alarma
 	  HAL_GPIO_WritePin(GPIOD,GPIO_PIN_13, alarma_on);
 
@@ -371,15 +363,15 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PA0 PA3 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_3;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  /*Configure GPIO pins : PA0 PA2 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_2;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA2 */
-  GPIO_InitStruct.Pin = GPIO_PIN_2;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  /*Configure GPIO pin : PA3 */
+  GPIO_InitStruct.Pin = GPIO_PIN_3;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -391,6 +383,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
   HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
 
